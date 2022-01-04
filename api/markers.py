@@ -8,22 +8,16 @@ class Marker:
     def validate_markers_file(self, file):
         # process file and return json of the validation
         result = self.process_markers_file(file)
-        if result['is_valid']:
+        if result:
             return result
         else:
-            return {""} # <----- Come back to this
+            return {} # <----- Come back to this
 
     @classmethod
     def process_markers_file(self, file):
         processed_lines = []
-        with open(file, 'r') as f:
-            lines = f.readlines()
-            lines = [line.rstrip() for line in lines]
-            for line in lines:
-                # prompt indicates that txt will only ever be one line long but
-                # from a working standpoint, I think we can cover multiline files
-                # with minimal effort
-                processed_lines.append(self.process_text_line(line))
+        line = file.read().decode("utf-8").rstrip()
+        processed_lines.append(self.process_text_line(line))
         if len(processed_lines) == 1:
             return processed_lines[0]
         elif len(processed_lines) == 0:
@@ -116,18 +110,11 @@ class Marker:
 
     @classmethod
     def test_sample_input(self, file_path):
-        # with open(self.TEST_FILE_PATH, 'r') as f:
-            # lines = f.readlines()
-            # for line in lines:
-            #         parsed_line = line.rstrip().split("   ")
-            #         parsed_line = self.process_text_line(line)
-
-            #         print(parsed_line)
         return Marker.process_markers_file(file_path)
 
 
 # Testing:
 # sample_in = '00;00;21;29'
 # sample_out = '00;00;22;03'
-print(Marker.test_sample_input(Marker.TEST_FILE_PATH))
+# print(Marker.test_sample_input(Marker.TEST_FILE_PATH))
 # print(Marker.test_sample_input())
