@@ -95,7 +95,7 @@ class Marker:
     @classmethod
     def validate_date(self, date):
         try:
-            datetime.datetime.strptime(date, '%m-%d-%Y')
+            return datetime.datetime.strptime(date, '%m-%d-%Y')
         except ValueError:
             raise ValueError('Incorrect data format, should be MM-DD-YYYY')
 
