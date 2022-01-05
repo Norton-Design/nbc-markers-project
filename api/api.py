@@ -11,11 +11,8 @@ CORS(app, expose_headers='Authorization')
 def file_upload():
     file = request.files.get('file')
     if file:
-        # print('is the file true?')
-        # print(file.filename)
         validated_file = Marker.validate_markers_file(file)
         if not validated_file:
-            # file is invalid
             return bad_request('File is Invalid')
         else:
             return jsonify(validated_file)

@@ -6,16 +6,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 
 function App() {
-  // const [currentTime, setCurrentTime] = useState(0);
-
-  // useEffect(() => {
-  //   fetchTimeForHelloWorld().then(response => {
-  //     setCurrentTime(response.time);
-  //   })
-  // })
-
   return (
-    <div className="App">
+    <div className="min-h-screen">
       <Header />
       <Dashboard />
       <Footer />

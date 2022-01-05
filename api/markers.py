@@ -2,16 +2,19 @@ import re
 import datetime
 
 class Marker:
-    TEST_FILE_PATH = './test/sample.txt'
-
     @classmethod
     def validate_markers_file(self, file):
-        # process file and return json of the validation
-        result = self.process_markers_file(file)
-        if result:
-            return result
-        else:
-            return {} # <----- Come back to this
+        try:
+            result = self.process_markers_file(file)
+            if result:
+                return result
+            else:
+                return {}
+        except:
+            return { 
+                "error" : True,
+                "message" : "File or timecodes doesn't conform to required format",
+                    }
 
     @classmethod
     def process_markers_file(self, file):
@@ -21,9 +24,9 @@ class Marker:
         if len(processed_lines) == 1:
             return processed_lines[0]
         elif len(processed_lines) == 0:
-            return { 'is_valid': False, "message": "No processable lines" }
+            return { 'error': True, "message": "No processable lines" }
         else:
-            # Come back and handle multiple line solution
+            # This is where we can expand later on the handle files that have multiple lines
             pass
 
     @classmethod
@@ -33,14 +36,37 @@ class Marker:
         asset_title, asset_id, material_type, date, *markers = section_list
         if self.validate_asset_title(asset_title):
             processed_data['asset_title'] = asset_title
+        else:
+            processed_data['error'] = True
+            processed_data['message'] = 'Asset title cannot be blank and must not exceed 100 characters'
+            return processed_data
+        
         if self.validate_asset_id(asset_id):
             processed_data['asset_id'] = asset_id
+        else:
+            processed_data['error'] = True
+            processed_data['message'] = 'Asset ID must be 4 uppercase alpha characters followed by 9 digits'
+            return processed_data
+
         if self.validate_material_type(material_type):
             processed_data['material_type'] = material_type
+        else:
+            processed_data['error'] = True
+            processed_data['message'] = 'Asset material type must be "news", "movie", "episode", or "sports"'
+            return processed_data
+        
         if self.validate_date(date):
             processed_data['date'] = date
+        else:
+            processed_data['error'] = True
+            processed_data['message'] = "Date doesn't match the MM-DD-YYYY format"
+            return processed_data
+
         if self.validate_timecode_markers(markers):
             processed_data['markers'] = self.process_timecode_markers(markers)
+        else:
+            processed_data['error'] = True
+            processed_data['message'] = 'File contains an odd number of timecodes or an Out-code occurs before an In-code'
         return processed_data
 
     @classmethod
@@ -68,7 +94,6 @@ class Marker:
 
     @classmethod
     def validate_date(self, date):
-        # Check back about this one
         try:
             datetime.datetime.strptime(date, '%m-%d-%Y')
         except ValueError:
@@ -78,12 +103,9 @@ class Marker:
     def validate_timecode_markers(self, timecode_markers):
         if len(timecode_markers) < 2 or len(timecode_markers) % 2 == 1:
             return False
-        # loop through them and check if the timecodes are valid and in In-Out order.
         for i in range(0, len(timecode_markers), 2):
             in_code = timecode_markers[i]
             out_code = timecode_markers[i+1]
-
-            # if either code is invalid or the combo isn't in the right order, return False
             if not self.validate_timecode(in_code) or \
                 not self.validate_timecode(out_code) or \
                 not self.are_timecodes_in_order(in_code, out_code):
@@ -111,10 +133,3 @@ class Marker:
     @classmethod
     def test_sample_input(self, file_path):
         return Marker.process_markers_file(file_path)
-
-
-# Testing:
-# sample_in = '00;00;21;29'
-# sample_out = '00;00;22;03'
-# print(Marker.test_sample_input(Marker.TEST_FILE_PATH))
-# print(Marker.test_sample_input())
